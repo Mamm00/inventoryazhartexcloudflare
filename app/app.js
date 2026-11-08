@@ -232,8 +232,12 @@ async function submitLogin(form) {
     turnstileToken: (typeof window !== 'undefined' && window.turnstileToken) || 'demo-token',
   });
   if (!res.ok) {
+    const err = (res.data && res.data.error) || '';
     const key = res.status === 429 ? 'login.locked'
-      : res.status === 403 && res.data.error === 'TURNSTILE' ? 'login.turnstile' : 'login.failed';
+      : err === 'TURNSTILE' ? 'login.turnstile'
+      : err === 'CONFIG' ? 'login.config'
+      : (err === 'NO_ACCOUNTS' || err === 'NO_SCHEMA') ? 'login.noAccounts'
+      : 'login.failed';
     toast(tr(key), 'error');
     return;
   }

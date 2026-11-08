@@ -89,6 +89,8 @@ export const I18N_RAW = {
   'login.failed': ['Wrong username or password', 'اسم المستخدم أو كلمة المرور خاطئة'],
   'login.locked': ['Too many attempts — locked for 60 seconds', 'محاولات كثيرة — القفل لمدة ٦٠ ثانية'],
   'login.turnstile': ['Turnstile check failed', 'فشل التحقق من تيرنستايل'],
+  'login.config': ['Database not connected — bind the D1 database named DB (see DEPLOY.md)', 'قاعدة البيانات غير متصلة — اربط قاعدة D1 باسم DB (راجع DEPLOY.md)'],
+  'login.noAccounts': ['No accounts in the database yet — apply the D1 migrations (see DEPLOY.md §5)', 'لا توجد حسابات في قاعدة البيانات بعد — طبّق ترحيلات D1 (راجع DEPLOY.md §5)'],
   'login.demo': ['Demo accounts', 'حسابات تجريبية'],
   'login.checking': ['Checking session…', 'جارٍ التحقق من الجلسة…'],
 
