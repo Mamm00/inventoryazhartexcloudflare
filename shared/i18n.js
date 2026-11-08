@@ -91,6 +91,10 @@ export const I18N_RAW = {
   'login.turnstile': ['Turnstile check failed', 'فشل التحقق من تيرنستايل'],
   'login.config': ['Database not connected — bind the D1 database named DB (see DEPLOY.md)', 'قاعدة البيانات غير متصلة — اربط قاعدة D1 باسم DB (راجع DEPLOY.md)'],
   'login.noAccounts': ['No accounts in the database yet — apply the D1 migrations (see DEPLOY.md §5)', 'لا توجد حسابات في قاعدة البيانات بعد — طبّق ترحيلات D1 (راجع DEPLOY.md §5)'],
+  'login.setupBtn': ['Initialize database & load demo data', 'تهيئة قاعدة البيانات وتحميل البيانات التجريبية'],
+  'login.setupBusy': ['Setting up… this can take half a minute', 'جارٍ التهيئة… قد يستغرق نصف دقيقة'],
+  'login.setupDone': ['Database ready — signing you in', 'قاعدة البيانات جاهزة — جارٍ تسجيل الدخول'],
+  'login.setupFailed': ['Setup failed — check the D1 binding and try again', 'فشلت التهيئة — تحقق من ربط D1 وحاول مجددًا'],
   'login.demo': ['Demo accounts', 'حسابات تجريبية'],
   'login.checking': ['Checking session…', 'جارٍ التحقق من الجلسة…'],
 

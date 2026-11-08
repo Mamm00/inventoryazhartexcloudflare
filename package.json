@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Fabric-roll stock management for an Egyptian fabric merchant — Cloudflare Pages full-stack",
   "scripts": {
-    "build": "python3 tools/make_seed_sql.py && python3 tools/make_landing.py && python3 tools/copy_shared.py",
+    "build": "python3 tools/make_seed_sql.py && python3 tools/make_landing.py && python3 tools/copy_shared.py && python3 tools/make_seed_module.py",
     "postinstall": "node tools/provision.mjs",
     "provision": "node tools/provision.mjs",
     "test": "node --test tests/logic.test.js tests/api.test.js tests/ui.test.js tests/site.test.js",

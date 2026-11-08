@@ -5,7 +5,7 @@
 import { getSession } from '../../shared/server/db.js';
 import { verifyAccessJwt, json, clientIp } from '../../shared/server/http.js';
 
-const OPEN_PATHS = new Set(['/api/auth/login', '/api/health']);
+const OPEN_PATHS = new Set(['/api/auth/login', '/api/auth/setup', '/api/health']);
 
 export async function onRequest(context, next) {
   const { request, env } = context;
