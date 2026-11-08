@@ -55,7 +55,10 @@ rejects placeholder IDs at upload (real-world error: `KV namespace
 'PLACEHOLDER' is not valid [code: 10042]`), so create the resource, paste its
 real ID into the template, uncomment the block, and push. The Worker deploys
 under the name `inventoryazhartexcloudflare` (the CI project name — keep
-`name` in `wrangler.toml` in sync, or the build warns and overrides).
+`name` in `wrangler.toml` in sync, or the build warns and overrides). The
+Durable Object migration uses `new_sqlite_classes` — required for Durable
+Objects on the **free plan** (API error 10097 for `new_classes`); the class
+code is identical on both storage backends.
 
 > **Classic Pages project instead?** Create a *Pages* project with **build
 > output directory `app`** from the same repo — Pages auto-mounts

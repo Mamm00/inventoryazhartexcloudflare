@@ -60,4 +60,4 @@ bindings = [
 
 [[migrations]]
 tag = "v1"
-new_classes = ["WarehouseLedger"]
+new_sqlite_classes = ["WarehouseLedger"]
