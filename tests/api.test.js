@@ -516,3 +516,32 @@ test('worker entry (worker/src/app.js router) dispatches /api/* through the shar
   const notFound = await handleApi(req('/api/nope', { headers: { cookie } }), env);
   assert.equal(notFound.status, 404);
 });
+
+test('first-run setup: seeds an empty/partial database, then refuses forever', async () => {
+  const { onRequestPost: setupPost } = await import('../functions/api/auth/setup.js');
+  const call = (env) => setupPost({ env, request: req('/api/auth/setup', { method: 'POST' }) });
+
+  // partial state: schema present, seed half-gone (the phone-console failure mode)
+  const { env, db } = freshDb();
+  db.prepare('DELETE FROM users').run();
+  db.prepare('DELETE FROM stock_events').run();
+  const res = await call(env);
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).records, 3005);
+  assert.equal((await login(env, 'admin', 'admin123')).status, 200);
+  assert.equal((await login(env, 'keeper1', 'mostafa123')).status, 200);
+  const again = await call(env);
+  assert.equal(again.status, 409);
+  assert.equal((await again.json()).error, 'ALREADY_SET_UP');
+
+  // schema-missing state: every table dropped
+  const bare = freshDb();
+  const found = await bare.db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all();
+  for (const r of (found.results || found)) {
+    try { bare.db.prepare(`DROP TABLE "${r.name}"`).run(); } catch { /* best effort */ }
+  }
+  const res2 = await call(bare.env);
+  assert.equal(res2.status, 200);
+  assert.equal((await res2.json()).records, 3005);
+  assert.equal((await login(bare.env, 'keeper2', 'keeper2123')).status, 200);
+});

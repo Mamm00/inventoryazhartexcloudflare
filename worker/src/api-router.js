@@ -9,6 +9,7 @@
 import { onRequest as middleware } from '../../functions/api/_middleware.js';
 
 import { onRequestPost as loginPost } from '../../functions/api/auth/login.js';
+import { onRequestPost as setupPost } from '../../functions/api/auth/setup.js';
 import { onRequestPost as logoutPost } from '../../functions/api/auth/logout.js';
 import { onRequestGet as meGet } from '../../functions/api/auth/me.js';
 import { onRequestGet as healthGet } from '../../functions/api/health.js';
@@ -36,6 +37,7 @@ import { onRequestGet as offlineGet } from '../../functions/api/export/offline.j
 
 const ROUTES = [
   ['POST', '/api/auth/login', loginPost],
+  ['POST', '/api/auth/setup', setupPost],
   ['POST', '/api/auth/logout', logoutPost],
   ['GET', '/api/auth/me', meGet],
   ['GET', '/api/health', healthGet],

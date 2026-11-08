@@ -239,10 +239,35 @@ async function submitLogin(form) {
       : (err === 'NO_ACCOUNTS' || err === 'NO_SCHEMA') ? 'login.noAccounts'
       : 'login.failed';
     toast(tr(key), 'error');
+    if (err === 'NO_ACCOUNTS' || err === 'NO_SCHEMA') offerSetup(form);
     return;
   }
   UI.user = res.data.user;
   await route();
+}
+
+function offerSetup(form) {
+  let btn = form.querySelector('[data-setup-btn]');
+  if (!btn) {
+    btn = mk('button', { class: 'btn', type: 'button', text: tr('login.setupBtn') });
+    btn.setAttribute('data-setup-btn', '1');
+    form.appendChild(btn);
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      btn.textContent = tr('login.setupBusy');
+      const res = await api.mutate('/api/auth/setup', {});
+      if (!res.ok) {
+        btn.disabled = false;
+        btn.textContent = tr('login.setupBtn');
+        toast(tr('login.setupFailed'), 'error');
+        return;
+      }
+      toast(tr('login.setupDone'), 'success');
+      btn.remove();
+      await submitLogin(form); // retry with the credentials already typed
+    });
+  }
+  btn.hidden = false;
 }
 
 // ---- router --------------------------------------------------------------

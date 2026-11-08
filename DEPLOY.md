@@ -128,6 +128,13 @@ git push origin main                            # 3. the build runs `npx wrangle
 Then, resource by resource: create it, uncomment its template block with the
 real ID, push (each push redeploys). Enable Turnstile on the login form (the
 SPA posts `turnstileToken`),
+
+> **No CLI at hand?** Once the `DB` binding exists, the app finishes the setup
+> itself: log in and the screen offers **"Initialize database & load demo
+> data"** (Arabic: تهيئة قاعدة البيانات) whenever the database has zero
+> accounts. One tap wipes any partial data and applies `migrations/0001–0003`
+> (the same SQL, embedded in the worker) — and the endpoint refuses to ever
+> run again once an account exists.
 and add an Access application in front of the site if SSO is desired (the
 middleware validates `Cf-Access-Jwt-Assertion` when `ACCESS_CLIENT_SECRET` is
 set).
