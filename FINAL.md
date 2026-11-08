@@ -166,6 +166,19 @@ itself is broken, and the login toast maps error codes to dedicated EN/AR
 i18n keys (`login.config`, `login.noAccounts`). Covered by
 `tests/api.test.js` ("login setup diagnostics").
 
+Fourth follow-up (same day, "fix automatically"): the live app correctly
+reported `CONFIG` (D1 not bound), but binding resources still required manual
+dashboard work. Added `tools/provision.mjs` (npm `postinstall`, so the
+Cloudflare build's `npm clean-install` runs it before `npx wrangler deploy`):
+it finds-or-creates D1 `fabric-roll-stock` / KV `CACHE` / R2
+`fabric-roll-exports` / the six queues using the build's `CLOUDFLARE_API_TOKEN`,
+rewrites the scissors-marker region of `wrangler.toml` with real IDs (build
+workspace only — IDs never committed), and applies `migrations/` idempotently.
+Degrades per-resource on permission errors (the login toast names whatever is
+still missing). Verified: `--self-test` in `tools/check.sh` (rewrite logic,
+offline) and a simulated provisioned config passing `wrangler deploy
+--dry-run` with all six bindings. Without a token the script skips cleanly.
+
 Sandbox note for future test runs: this sandbox wipes `node_modules` between
 sessions and blocks both `nodejs.org` (node-gyp headers) and the GitHub
 release-asset hosts, so restore with:
