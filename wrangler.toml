@@ -43,7 +43,21 @@ not_found_handling = "404-page"
 # [[kv_namespaces]]
 # binding = "CACHE"
 # id = "PASTE-KV-NAMESPACE-ID"
+# ...
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
 
+[observability.traces]
+enabled = true
+head_sampling_rate = 1
+persist = true
+
+[observability.issue_detection]
+enabled = true
+# ...
 # wrangler r2 bucket create fabric-roll-exports
 # [[r2_buckets]]
 # binding = "EXPORTS"
