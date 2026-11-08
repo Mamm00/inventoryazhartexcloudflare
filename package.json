@@ -1,0 +1,20 @@
+{
+  "name": "fabric-roll-stock",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Fabric-roll stock management for an Egyptian fabric merchant — Cloudflare Pages full-stack",
+  "scripts": {
+    "build": "python3 tools/make_seed_sql.py && python3 tools/make_landing.py && python3 tools/copy_shared.py",
+    "test": "node --test tests/logic.test.js tests/api.test.js tests/ui.test.js tests/site.test.js",
+    "lint": "node tests/lint.js",
+    "check": "bash tools/check.sh"
+  },
+  "devDependencies": {
+    "jsdom": "^25.0.1",
+    "wrangler": "^3.114.17"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3"
+  }
+}
