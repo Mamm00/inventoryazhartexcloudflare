@@ -1,0 +1,63 @@
+# worker/wrangler.toml — companion Worker: Durable Objects, Queue consumer,
+# Cron triggers. Deploy BEFORE binding WAREHOUSE_LEDGER to the Pages project:
+#   cd worker && wrangler deploy
+name = "fabric-roll-ledger-worker"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fabric-roll-stock"
+database_id = "PLACEHOLDER"
+migrations_dir = "../migrations"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "PLACEHOLDER"
+
+[[r2_buckets]]
+binding = "EXPORTS"
+bucket_name = "fabric-roll-exports"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "fabric_roll_events"
+
+[triggers]
+crons = ["*/15 * * * *", "0 6 * * *", "0 2 * * *", "0 3 * * 0"]
+
+[[queues.consumers]]
+queue = "audit-queue"
+max_retries = 3
+dead_letter_queue = "audit-queue-dlq"
+
+[[queues.consumers]]
+queue = "email-queue"
+max_retries = 3
+dead_letter_queue = "email-queue-dlq"
+
+[[queues.consumers]]
+queue = "export-queue"
+max_retries = 3
+dead_letter_queue = "export-queue-dlq"
+
+[[queues.consumers]]
+queue = "audit-queue-dlq"
+max_retries = 0
+
+[[queues.consumers]]
+queue = "email-queue-dlq"
+max_retries = 0
+
+[[queues.consumers]]
+queue = "export-queue-dlq"
+max_retries = 0
+
+[durable_objects]
+bindings = [
+  { name = "WAREHOUSE_LEDGER", class_name = "WarehouseLedger" }
+]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["WarehouseLedger"]

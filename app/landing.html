@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fabric Roll Stock — مخزون بكرات القماش</title>
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+<style>
+ body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; margin: 0; background: #f4f6fb; color: #1c2433; }
+ header { background: #163a7c; color: #fff; padding: 1.4rem 2rem; }
+ main { max-width: 940px; margin: 1.5rem auto 3rem; padding: 0 1.25rem; }
+ section { background: #fff; border: 1px solid #d9dfeb; border-radius: 12px; padding: 1.1rem 1.35rem; margin-bottom: 1.15rem; }
+ table { border-collapse: collapse; width: 100%; }
+ th, td { border: 1px solid #d9dfeb; padding: .34rem .6rem; text-align: start; font-size: .92rem; }
+ th { background: #e9eef8; }
+ h1 { margin: .2rem 0; }
+ h2 { color: #163a7c; margin-top: 1rem; }
+ .two { display: grid; grid-template-columns: 1fr 1fr; gap: 1.15rem; }
+ a.btn { display: inline-block; background: #1f4fa3; color: #fff; padding: .55rem 1.15rem; border-radius: 9px; text-decoration: none; }
+ .foot { color: #5b6472; font-size: .85rem; text-align: center; padding: 1rem; }
+</style>
+</head>
+<body>
+<header>
+  <div>Fabric Roll Stock</div>
+  <div>مخزون بكرات القماش</div>
+</header>
+<main>
+  <div class="two">
+    <section id="lang-en" lang="en" dir="ltr"><h1 data-k="title">Fabric Roll Stock</h1>
+<p data-k="tagline">Fabric-roll stock management for an Egyptian fabric merchant</p>
+<p data-k="intro">Warehouse → Fabric type → Colour → Roll. A roll is counted; metres come from metres per roll.</p>
+<h2 data-k="numbers_h">Numbers (derived from the seed generator)</h2>
+<h2 data-k="signins_h">Seeded sign-ins</h2>
+<h2 data-k="open_h">Open the app</h2>
+<h2 data-k="security_h">Security</h2>
+<p data-k="security_body">Server-side RBAC is enforced in every Pages Function and in the Durable Object; the browser copy of can() only hides buttons. The writable app requires Cloudflare and HTTPS; the offline snapshot is read-only.</p>
+<h2 data-k="deploy_h">Deployment</h2>
+<p data-k="deploy_body">GitHub → Cloudflare Pages Git integration. Build command: npm run build. Output: app/. The companion Worker provides Durable Objects, queues and cron.</p></section>
+    <section id="lang-ar" lang="ar" dir="rtl"><h1 data-k="title">مخزون بكرات القماش</h1>
+<p data-k="tagline">إدارة مخزون بكرات القماش للتاجر المصري</p>
+<p data-k="intro">المخزن → نوع القماش → اللون → البكرة. البكرة تُعدّ؛ والأمتار من أمتار البكرة.</p>
+<h2 data-k="numbers_h">الأرقام (مصدرها مولّد البيانات)</h2>
+<h2 data-k="signins_h">حسابات الدخول المزروعة</h2>
+<h2 data-k="open_h">افتح التطبيق</h2>
+<h2 data-k="security_h">الأمان</h2>
+<p data-k="security_body">يتم فرض صلاحيات RBAC على الخادم في كل Pages Function وفي Durable Object؛ ونسخة can() في المتصفح لإخفاء الأزرار فقط. التطبيق القابل للكتابة يتطلب Cloudflare و HTTPS؛ واللقطة غير المتصلة للقراءة فقط.</p>
+<h2 data-k="deploy_h">النشر</h2>
+<p data-k="deploy_body">GitHub → تكامل Cloudflare Pages مع Git. أمر البناء: npm run build. المخرجات: app/. والـ Worker المرافق يوفّر Durable Objects والطوابير والمهام المجدولة.</p></section>
+  </div>
+  <section>
+    <h2>Numbers / الأرقام — seed_manifest.json</h2>
+    <table id="numbers-table"><thead><tr><th>Metric</th><th>Value</th></tr></thead>
+    <tbody><tr><td>warehouses</td><td dir="ltr">10</td></tr>
+<tr><td>fabrics</td><td dir="ltr">61</td></tr>
+<tr><td>colors</td><td dir="ltr">208</td></tr>
+<tr><td>mappings</td><td dir="ltr">1296</td></tr>
+<tr><td>inventory rows</td><td dir="ltr">1296</td></tr>
+<tr><td>movements</td><td dir="ltr">124</td></tr>
+<tr><td>keeper codes</td><td dir="ltr">7</td></tr>
+<tr><td>records</td><td dir="ltr">3005</td></tr>
+<tr><td>rolls — Mostafa sheds</td><td dir="ltr">51333</td></tr>
+<tr><td>rolls — colleague sheds</td><td dir="ltr">17234</td></tr>
+<tr><td>rolls — shed cards total</td><td dir="ltr">68567</td></tr>
+<tr><td>rolls — raw inventory total</td><td dir="ltr">69787</td></tr>
+<tr><td>deactivated mapping rows</td><td dir="ltr">26</td></tr>
+<tr><td>rolls on deactivated mappings</td><td dir="ltr">1220</td></tr>
+<tr><td>wh-625 mapped colours</td><td dir="ltr">180</td></tr>
+<tr><td>wh-625 active colours</td><td dir="ltr">176</td></tr>
+<tr><td>wh-625 rolls</td><td dir="ltr">5255</td></tr>
+<tr><td>wh-625 capacity</td><td dir="ltr">3000</td></tr>
+<tr><td>wh-625 utilisation %</td><td dir="ltr">175.2</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>Shed map / خريطة المخازن</h2>
+    <table id="shed-table"><thead><tr><th>id</th><th>name</th><th>rolls</th><th>capacity</th><th>util</th></tr></thead>
+    <tbody><tr><td>wh-alwa</td><td>درجة تانية الوا / Alwa Grade 2</td><td dir="ltr">13456</td><td dir="ltr">22000</td><td dir="ltr">61.2%</td></tr>
+<tr><td>wh-leon</td><td>درجة تانية ليون / Leon Grade 2</td><td dir="ltr">11204</td><td dir="ltr">18000</td><td dir="ltr">62.2%</td></tr>
+<tr><td>wh-azouz</td><td>عزوز درجة اولي / Azouz Grade 1</td><td dir="ltr">9876</td><td dir="ltr">20000</td><td dir="ltr">49.4%</td></tr>
+<tr><td>wh-zibda</td><td>الزبدة / Zibda</td><td dir="ltr">8797</td><td dir="ltr">22000</td><td dir="ltr">40.0%</td></tr>
+<tr><td>wh-showroom</td><td>مخزن العرض / Showroom</td><td dir="ltr">8000</td><td dir="ltr">11000</td><td dir="ltr">72.7%</td></tr>
+<tr><td>wh-625</td><td>٦٢٥ / 625</td><td dir="ltr">5255</td><td dir="ltr">3000</td><td dir="ltr">175.2%</td></tr>
+<tr><td>wh-magdy</td><td>مجدي / Magdy</td><td dir="ltr">3200</td><td dir="ltr">6000</td><td dir="ltr">53.3%</td></tr>
+<tr><td>wh-wahman</td><td>وهمان / Wahman</td><td dir="ltr">2879</td><td dir="ltr">6500</td><td dir="ltr">44.3%</td></tr>
+<tr><td>wh-lycra</td><td>ليكرا / Lycra</td><td dir="ltr">3400</td><td dir="ltr">5000</td><td dir="ltr">68.0%</td></tr>
+<tr><td>wh-kashry</td><td>كشري / Kashry</td><td dir="ltr">2500</td><td dir="ltr">5500</td><td dir="ltr">45.5%</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>Seeded sign-ins / حسابات الدخول</h2>
+    <table id="signins-table"><thead><tr><th>Username</th><th>Password</th><th>Who</th><th>Scope</th></tr></thead>
+    <tbody><tr><td dir="ltr">admin</td><td dir="ltr">admin123</td><td>مسؤول / Admin</td><td>كل المخازن العشرة / All ten sheds</td></tr>
+<tr><td dir="ltr">keeper1</td><td dir="ltr">mostafa123</td><td>مصطفى · أمين مخزن / Mostafa · Warehouse Keeper</td><td>مخازنه الخمسة / His five sheds</td></tr>
+<tr><td dir="ltr">keeper2</td><td dir="ltr">keeper2123</td><td>الأمين الثاني · أمين مخزن / Second keeper · Warehouse Keeper</td><td>المخازن الخمسة الأخرى / The other five sheds</td></tr></tbody></table>
+  </section>
+  <section>
+    <h2>Open the app / افتح التطبيق</h2>
+    <p><a class="btn" href="/index.html">app/index.html</a></p>
+  </section>
+</main>
+<div class="foot">Generated by tools/make_landing.py from seed_manifest.json · الأرقام مولّدة من seed_manifest.json</div>
+</body>
+</html>

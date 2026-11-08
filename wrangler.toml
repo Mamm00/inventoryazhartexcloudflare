@@ -1,0 +1,52 @@
+# wrangler.toml — the project `npx wrangler deploy` builds (the CI's user
+# deploy command): one Worker serving the static SPA (assets), the /api/*
+# Pages Function modules, the WarehouseLedger Durable Object, queue consumers
+# and cron triggers. A classic Pages project can also be connected instead —
+# see DEPLOY.md. Placeholders are filled in the dashboard after the first
+# deploy (Settings → Bindings / Variables).
+
+name = "fabric-roll-stock"
+main = "worker/src/app.js"
+compatibility_date = "2026-11-01"
+
+# Static SPA. Every request runs the worker first (schema-stable across
+# wrangler versions); the entry serves /api/* and hands everything else to
+# env.ASSETS (404.html bounce page for unknown paths).
+[assets]
+directory = "./app"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "404-page"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "fabric-roll-stock"
+database_id = "PLACEHOLDER"
+migrations_dir = "migrations"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "PLACEHOLDER"
+
+[[r2_buckets]]
+binding = "EXPORTS"
+bucket_name = "fabric-roll-exports"
+
+[[queues.producers]]
+binding = "AUDIT_QUEUE"
+queue = "audit-queue"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "fabric_roll_events"
+
+# WarehouseLedger serialises stock mutations per warehouse and refuses
+# negative stock. The movements API calls it through this binding and falls
+# back to the identical shared implementation (shared/ledger-core.js) when the
+# binding is absent (tests, classic Pages).
+[durable_objects]
+bindings = [{ name = "WAREHOUSE_LEDGER", class_name = "WarehouseLedger" }]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["WarehouseLedger"]

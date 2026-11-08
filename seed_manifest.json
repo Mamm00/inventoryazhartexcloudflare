@@ -1,0 +1,226 @@
+{
+  "seed_version": "1.2.0",
+  "generator": "tools/make_seed_sql.py",
+  "counts": {
+    "warehouses": 10,
+    "fabrics": 61,
+    "colors": 208,
+    "mappings": 1296,
+    "inventory_rows": 1296,
+    "movements": 124,
+    "keeper_codes": 7,
+    "users": 3,
+    "records": 3005
+  },
+  "color_grades": {
+    "A": 65,
+    "B": 70,
+    "C": 54,
+    "D": 19
+  },
+  "families": 11,
+  "rolls": {
+    "mostafa_active": 51333,
+    "keeper2_active": 17234,
+    "company_active": 68567,
+    "raw_total": 69787,
+    "inactive_mapping_rows": 26,
+    "inactive_rolls": 1220
+  },
+  "movements": {
+    "kinds": {
+      "transfer_out": 12,
+      "transfer_in": 12,
+      "in": 40,
+      "out": 40,
+      "adjustment": 20
+    },
+    "transfers": 12,
+    "total": 124
+  },
+  "wh625": {
+    "fabrics": 1,
+    "mapped_colors": 180,
+    "active_colors": 176,
+    "active_rolls": 5255,
+    "raw_rolls": 5375,
+    "capacity": 3000,
+    "util_pct": 175.2
+  },
+  "sheds": [
+    {
+      "id": "wh-alwa",
+      "name_ar": "درجة تانية الوا",
+      "name_en": "Alwa Grade 2",
+      "keeper": "keeper1",
+      "fabrics": 53,
+      "colors_mapped": 150,
+      "colors_active": 147,
+      "active_rolls": 13456,
+      "raw_rolls": 13606,
+      "capacity": 22000,
+      "util_pct": 61.2
+    },
+    {
+      "id": "wh-leon",
+      "name_ar": "درجة تانية ليون",
+      "name_en": "Leon Grade 2",
+      "keeper": "keeper1",
+      "fabrics": 51,
+      "colors_mapped": 130,
+      "colors_active": 127,
+      "active_rolls": 11204,
+      "raw_rolls": 11354,
+      "capacity": 18000,
+      "util_pct": 62.2
+    },
+    {
+      "id": "wh-azouz",
+      "name_ar": "عزوز درجة اولي",
+      "name_en": "Azouz Grade 1",
+      "keeper": "keeper1",
+      "fabrics": 50,
+      "colors_mapped": 120,
+      "colors_active": 118,
+      "active_rolls": 9876,
+      "raw_rolls": 9976,
+      "capacity": 20000,
+      "util_pct": 49.4
+    },
+    {
+      "id": "wh-zibda",
+      "name_ar": "الزبدة",
+      "name_en": "Zibda",
+      "keeper": "keeper1",
+      "fabrics": 43,
+      "colors_mapped": 100,
+      "colors_active": 98,
+      "active_rolls": 8797,
+      "raw_rolls": 8897,
+      "capacity": 22000,
+      "util_pct": 40.0
+    },
+    {
+      "id": "wh-showroom",
+      "name_ar": "مخزن العرض",
+      "name_en": "Showroom",
+      "keeper": "keeper1",
+      "fabrics": 56,
+      "colors_mapped": 180,
+      "colors_active": 175,
+      "active_rolls": 8000,
+      "raw_rolls": 8250,
+      "capacity": 11000,
+      "util_pct": 72.7
+    },
+    {
+      "id": "wh-625",
+      "name_ar": "٦٢٥",
+      "name_en": "625",
+      "keeper": "keeper2",
+      "fabrics": 1,
+      "colors_mapped": 180,
+      "colors_active": 176,
+      "active_rolls": 5255,
+      "raw_rolls": 5375,
+      "capacity": 3000,
+      "util_pct": 175.2
+    },
+    {
+      "id": "wh-magdy",
+      "name_ar": "مجدي",
+      "name_en": "Magdy",
+      "keeper": "keeper2",
+      "fabrics": 51,
+      "colors_mapped": 110,
+      "colors_active": 108,
+      "active_rolls": 3200,
+      "raw_rolls": 3300,
+      "capacity": 6000,
+      "util_pct": 53.3
+    },
+    {
+      "id": "wh-wahman",
+      "name_ar": "وهمان",
+      "name_en": "Wahman",
+      "keeper": "keeper2",
+      "fabrics": 48,
+      "colors_mapped": 90,
+      "colors_active": 88,
+      "active_rolls": 2879,
+      "raw_rolls": 2979,
+      "capacity": 6500,
+      "util_pct": 44.3
+    },
+    {
+      "id": "wh-lycra",
+      "name_ar": "ليكرا",
+      "name_en": "Lycra",
+      "keeper": "keeper2",
+      "fabrics": 55,
+      "colors_mapped": 140,
+      "colors_active": 138,
+      "active_rolls": 3400,
+      "raw_rolls": 3500,
+      "capacity": 5000,
+      "util_pct": 68.0
+    },
+    {
+      "id": "wh-kashry",
+      "name_ar": "كشري",
+      "name_en": "Kashry",
+      "keeper": "keeper2",
+      "fabrics": 43,
+      "colors_mapped": 96,
+      "colors_active": 95,
+      "active_rolls": 2500,
+      "raw_rolls": 2550,
+      "capacity": 5500,
+      "util_pct": 45.5
+    }
+  ],
+  "sign_ins": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "who_en": "Admin",
+      "who_ar": "مسؤول",
+      "role": "Admin",
+      "scope_en": "All ten sheds",
+      "scope_ar": "كل المخازن العشرة",
+      "warehouse_ids": []
+    },
+    {
+      "username": "keeper1",
+      "password": "mostafa123",
+      "who_en": "Mostafa · Warehouse Keeper",
+      "who_ar": "مصطفى · أمين مخزن",
+      "role": "WarehouseKeeper",
+      "scope_en": "His five sheds",
+      "scope_ar": "مخازنه الخمسة",
+      "warehouse_ids": [
+        "wh-alwa",
+        "wh-leon",
+        "wh-azouz",
+        "wh-zibda",
+        "wh-showroom"
+      ]
+    },
+    {
+      "username": "keeper2",
+      "password": "keeper2123",
+      "who_en": "Second keeper · Warehouse Keeper",
+      "who_ar": "الأمين الثاني · أمين مخزن",
+      "role": "WarehouseKeeper",
+      "scope_en": "The other five sheds",
+      "scope_ar": "المخازن الخمسة الأخرى",
+      "warehouse_ids": [
+        "wh-625",
+        "wh-magdy",
+        "wh-wahman",
+        "wh-lycra",
+        "wh-kashry"
+      ]
+    }
+  ]
+}
