@@ -43,6 +43,7 @@ node --test tests/logic.test.js tests/api.test.js tests/ui.test.js tests/site.te
 node tests/lint.js
 
 echo "== 5/5 functions build check =="
+node tools/provision.mjs --self-test
 if npx --no-install wrangler --version >/dev/null 2>&1; then
   npx wrangler pages functions build --outdir /tmp/pages-functions-build 2>&1 | tail -3
   # The CI's user deploy command must also bundle cleanly (no upload).

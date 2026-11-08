@@ -23,10 +23,16 @@ binding = "ASSETS"
 run_worker_first = true
 not_found_handling = "404-page"
 
-# ── Resource bindings: create first, paste the ID, uncomment, push ──────────
-
+# ── Resource bindings ───────────────────────────────────────────────────────
+# Everything between the scissors markers is REWRITTEN at build time by
+# tools/provision.mjs (npm postinstall) when the build has a Cloudflare API
+# token: it finds-or-creates the resources and writes real IDs here — IDs are
+# account-local and never committed. Without a token the templates below stay
+# commented: create the resource, paste the real ID, uncomment, push.
 # wrangler d1 create fabric-roll-stock → paste the returned database_id
 # wrangler d1 migrations apply fabric-roll-stock --remote
+# --8<-- provisioned-bindings-start
+
 # [[d1_databases]]
 # binding = "DB"
 # database_name = "fabric-roll-stock"
@@ -48,32 +54,8 @@ not_found_handling = "404-page"
 # [[queues.producers]]
 # binding = "AUDIT_QUEUE"
 # queue = "audit-queue"
-#
-# [[queues.consumers]]
-# queue = "audit-queue"
-# max_retries = 3
-# dead_letter_queue = "audit-queue-dlq"
-# [[queues.consumers]]
-# queue = "email-queue"
-# max_retries = 3
-# dead_letter_queue = "email-queue-dlq"
-# [[queues.consumers]]
-# queue = "export-queue"
-# max_retries = 3
-# dead_letter_queue = "export-queue-dlq"
-# [[queues.consumers]]
-# queue = "audit-queue-dlq"
-# max_retries = 0
-# [[queues.consumers]]
-# queue = "email-queue-dlq"
-# max_retries = 0
-# [[queues.consumers]]
-# queue = "export-queue-dlq"
-# max_retries = 0
 
-# [[analytics_engine_datasets]]
-# binding = "ANALYTICS"
-# dataset = "fabric_roll_events"
+# --8<-- provisioned-bindings-end
 
 # ── Always bound (self-contained) ───────────────────────────────────────────
 

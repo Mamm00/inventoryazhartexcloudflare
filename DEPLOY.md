@@ -60,6 +60,21 @@ Durable Object migration uses `new_sqlite_classes` — required for Durable
 Objects on the **free plan** (API error 10097 for `new_classes`); the class
 code is identical on both storage backends.
 
+### Automatic provisioning (default)
+
+The build also runs **`tools/provision.mjs`** (wired as npm `postinstall`,
+which `npm clean-install` executes before `npx wrangler deploy`). When the
+build environment carries a `CLOUDFLARE_API_TOKEN` — it does, so wrangler can
+deploy — the script finds-or-creates the D1 database `fabric-roll-stock`, the
+KV namespace `CACHE`, the R2 bucket `fabric-roll-exports` and the app queues,
+writes their real IDs into the scissors-marker region of `wrangler.toml`
+(build workspace only — account IDs are never committed), and applies
+`migrations/` (idempotent — tracked in `d1_migrations`, skipped when a
+hand-seeded `users` table is detected). Every step degrades gracefully on
+permission errors: that resource stays a commented template and the login
+toast names the exact missing step. Check any build log for `provision:`
+lines. The manual path in §5 remains the fallback.
+
 > **Classic Pages project instead?** Create a *Pages* project with **build
 > output directory `app`** from the same repo — Pages auto-mounts
 > `functions/api/**` and serves `app/` exactly as before. The Durable Object
