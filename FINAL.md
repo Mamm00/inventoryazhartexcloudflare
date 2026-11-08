@@ -65,7 +65,7 @@ this file, so its hash cannot be quoted here without circularity).
 | Pages Functions compile | `npx wrangler pages functions build` (inside `tools/check.sh`) | "Compiled Worker successfully" |
 | The CI's deploy command bundles | `npx wrangler deploy --dry-run` (inside `tools/check.sh`) | `Total Upload: 139.22 KiB` — worker + 11 assets + DO + queues + cron in one deploy |
 | Full stack live (login → stock → movement → 409 refusals) | `npx wrangler dev` smoke via curl (the CI's deploy shape) | keeper1: 5 sheds = 51,333 rolls; In +2 succeeded (51,335); UNMAPPED 422 and NEGATIVE_STOCK 409 refusals carry named messages |
-| Full pipeline | `bash tools/check.sh` | `CHECK: all green` (57 tests + lint + build) |
+| Full pipeline | `bash tools/check.sh` | `CHECK: all green` (58 tests + lint + build) |
 
 Command that could not run as specified: `tests/api.test.js` was specced against
 `wrangler pages dev` + Miniflare bindings. Miniflare *is* exercised live in the
@@ -123,7 +123,7 @@ by making the root `wrangler.toml` a Workers-with-static-assets project:
 - Verified: `npx wrangler deploy --dry-run` bundles clean (139.22 KiB);
   live `npx wrangler dev` smoke — health/login/stock/movement through the
   real Durable Object stub, 403+Blocked audit on cross-keeper write, 404
-  bounce page; `bash tools/check.sh` → `CHECK: all green` (57 + lint).
+  bounce page; `bash tools/check.sh` → `CHECK: all green` (58 + lint).
 
 Follow-up after the first real CI deploy (same day): the build reached the
 Cloudflare API and was rejected with `KV namespace 'PLACEHOLDER' is not valid
@@ -143,7 +143,7 @@ Test-devDependency note: `better-sqlite3` is pinned to `12.11.1` (tests only —
 this sandbox blocks both `nodejs.org` (node-gyp headers) and the GitHub
 release-asset hosts (`objects/​release-assets.githubusercontent.com`); 12.11.1
 ships prebuilts for the node 22 and 24 ABIs and exposes the identical API the
-adapter uses (verified: 57/57 tests green on 12.11.1). The Cloudflare build
+adapter uses (verified: 58/58 tests green on 12.11.1). The Cloudflare build
 (`npm clean-install`) installs it normally.
 
 Second follow-up (same day, third deploy attempt): with bindings trimmed the
@@ -155,6 +155,24 @@ wrangler.toml files now declare `new_sqlite_classes = ["WarehouseLedger"]`
 backend). After this, the same build log shows the deploy proceeding past
 bindings (only `WAREHOUSE_LEDGER` + `ASSETS`) with the name-mismatch warning
 gone.
+
+Third follow-up (same day, support round): first-run logins all reported
+"Wrong username or password" — the login UI mapped EVERY failure to that one
+toast, hiding the real cause (unbound D1, missing schema, or unseeded users).
+Fix: `login.js` now distinguishes `CONFIG` (no `env.DB`), `NO_SCHEMA` and
+`NO_ACCOUNTS` (503 each, each carrying the exact remediation command) from
+genuine `BAD_CREDENTIALS` (401), `auditLogin` never throws when the database
+itself is broken, and the login toast maps error codes to dedicated EN/AR
+i18n keys (`login.config`, `login.noAccounts`). Covered by
+`tests/api.test.js` ("login setup diagnostics").
+
+Sandbox note for future test runs: this sandbox wipes `node_modules` between
+sessions and blocks both `nodejs.org` (node-gyp headers) and the GitHub
+release-asset hosts, so restore with:
+`npm i --ignore-scripts` → download
+`https://codeload.github.com/nodejs/node/tar.gz/refs/tags/v22.22.3`, extract,
+`python3 configure.py` inside it → `npm_config_nodedir=<that dir> npm rebuild
+better-sqlite3` (run from the repo root).
 
 ## 6. Honesty statement
 

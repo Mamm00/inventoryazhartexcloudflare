@@ -42,7 +42,24 @@ export async function onRequestPost(context) {
     return json({ error: 'TURNSTILE', message: 'Turnstile check failed' }, 403);
   }
 
-  const user = await getUserByUsername(env.DB, username);
+  // Before comparing credentials, tell a broken deployment apart from a wrong
+  // password — otherwise every setup mistake looks like "Wrong username or
+  // password" (the exact confusion this guard exists to end).
+  if (!env.DB || typeof env.DB.prepare !== 'function') {
+    return json({ error: 'CONFIG', message: 'Database not bound — set the D1 binding named DB (see DEPLOY.md §4)' }, 503);
+  }
+  let user = null;
+  try {
+    user = await getUserByUsername(env.DB, username);
+    if (!user) {
+      const any = await env.DB.prepare('SELECT COUNT(*) AS n FROM users').first();
+      if (!any || !any.n) {
+        return json({ error: 'NO_ACCOUNTS', message: 'No accounts seeded — run: npx wrangler d1 migrations apply fabric-roll-stock --remote (see DEPLOY.md §5)' }, 503);
+      }
+    }
+  } catch {
+    return json({ error: 'NO_SCHEMA', message: 'Database schema missing — run: npx wrangler d1 migrations apply fabric-roll-stock --remote (see DEPLOY.md §5)' }, 503);
+  }
   const ok = user && user.active === 1 && await verifyPassword(password, user.password_hash);
   if (!ok) {
     await rateLimitFail(env, rlKey);
@@ -73,9 +90,13 @@ export async function onRequestPost(context) {
 }
 
 async function auditLogin(env, username, ip, result) {
-  await recordLoginAttempt(env.DB, crypto.randomUUID(), username, ip, result === 'OK');
-  await writeAudit(env.DB, {
-    action: 'auth.login', entity: 'session', entityId: username,
-    ip, result: result === 'OK' ? 'OK' : `Blocked (${result})`,
-  });
+  // Never throw: a missing DB/schema must surface as the specific setup error
+  // (CONFIG / NO_SCHEMA / NO_ACCOUNTS), not as a 500 from the audit write.
+  try {
+    await recordLoginAttempt(env.DB, crypto.randomUUID(), username, ip, result === 'OK');
+    await writeAudit(env.DB, {
+      action: 'auth.login', entity: 'session', entityId: username,
+      ip, result: result === 'OK' ? 'OK' : `Blocked (${result})`,
+    });
+  } catch { /* audit is best-effort when the database itself is broken */ }
 }

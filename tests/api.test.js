@@ -64,6 +64,27 @@ test('login: seeded accounts authenticate; bad password is 401', async () => {
   assert.equal(bad.status, 401);
 });
 
+test('login setup diagnostics: no DB / empty users / missing schema are distinct from bad credentials', async () => {
+  // No D1 binding at all → CONFIG 503 (must not look like a wrong password)
+  const noDb = await login({}, 'admin', 'admin123');
+  assert.equal(noDb.status, 503);
+  assert.equal((await noDb.json()).error, 'CONFIG');
+
+  // Schema present but no seeded accounts → NO_ACCOUNTS 503
+  const seeded = freshDb();
+  seeded.db.prepare('DELETE FROM users').run();
+  const empty = await login(seeded.env, 'admin', 'admin123');
+  assert.equal(empty.status, 503);
+  assert.equal((await empty.json()).error, 'NO_ACCOUNTS');
+
+  // Tables missing entirely → NO_SCHEMA 503
+  const bare = freshDb();
+  bare.db.prepare('DROP TABLE users').run();
+  const noSchema = await login(bare.env, 'admin', 'admin123');
+  assert.equal(noSchema.status, 503);
+  assert.equal((await noSchema.json()).error, 'NO_SCHEMA');
+});
+
 test('rate limiting: 5 failures trigger a 60-second server-side lockout', async () => {
   const { env } = freshDb();
   for (let i = 0; i < 5; i += 1) {
