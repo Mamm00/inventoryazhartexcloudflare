@@ -2,10 +2,15 @@
 # deploy command): one Worker serving the static SPA (assets), the /api/*
 # Pages Function modules, the WarehouseLedger Durable Object, queue consumers
 # and cron triggers. A classic Pages project can also be connected instead —
-# see DEPLOY.md. Placeholders are filled in the dashboard after the first
-# deploy (Settings → Bindings / Variables).
+# see DEPLOY.md.
+#
+# First deploy needs NO pre-created resources: only ASSETS and the
+# WarehouseLedger Durable Object are bound. The resource bindings below are
+# prepared templates — the Cloudflare API rejects placeholder IDs at deploy
+# time (code 10042), so create the resource, paste the real ID, uncomment the
+# block, and push (see DEPLOY.md §5).
 
-name = "fabric-roll-stock"
+name = "inventoryazhartexcloudflare"
 main = "worker/src/app.js"
 compatibility_date = "2026-11-01"
 
@@ -18,27 +23,59 @@ binding = "ASSETS"
 run_worker_first = true
 not_found_handling = "404-page"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "fabric-roll-stock"
-database_id = "PLACEHOLDER"
-migrations_dir = "migrations"
+# ── Resource bindings: create first, paste the ID, uncomment, push ──────────
 
-[[kv_namespaces]]
-binding = "CACHE"
-id = "PLACEHOLDER"
+# wrangler d1 create fabric-roll-stock → paste the returned database_id
+# wrangler d1 migrations apply fabric-roll-stock --remote
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "fabric-roll-stock"
+# database_id = "PASTE-DATABASE-ID"
+# migrations_dir = "migrations"
 
-[[r2_buckets]]
-binding = "EXPORTS"
-bucket_name = "fabric-roll-exports"
+# wrangler kv namespace create CACHE → paste the returned id
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "PASTE-KV-NAMESPACE-ID"
 
-[[queues.producers]]
-binding = "AUDIT_QUEUE"
-queue = "audit-queue"
+# wrangler r2 bucket create fabric-roll-exports
+# [[r2_buckets]]
+# binding = "EXPORTS"
+# bucket_name = "fabric-roll-exports"
 
-[[analytics_engine_datasets]]
-binding = "ANALYTICS"
-dataset = "fabric_roll_events"
+# wrangler queues create audit-queue / email-queue / export-queue
+# wrangler queues create audit-queue-dlq / email-queue-dlq / export-queue-dlq
+# [[queues.producers]]
+# binding = "AUDIT_QUEUE"
+# queue = "audit-queue"
+#
+# [[queues.consumers]]
+# queue = "audit-queue"
+# max_retries = 3
+# dead_letter_queue = "audit-queue-dlq"
+# [[queues.consumers]]
+# queue = "email-queue"
+# max_retries = 3
+# dead_letter_queue = "email-queue-dlq"
+# [[queues.consumers]]
+# queue = "export-queue"
+# max_retries = 3
+# dead_letter_queue = "export-queue-dlq"
+# [[queues.consumers]]
+# queue = "audit-queue-dlq"
+# max_retries = 0
+# [[queues.consumers]]
+# queue = "email-queue-dlq"
+# max_retries = 0
+# [[queues.consumers]]
+# queue = "export-queue-dlq"
+# max_retries = 0
+
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+# dataset = "fabric_roll_events"
+
+# ── Always bound (self-contained) ───────────────────────────────────────────
 
 # WarehouseLedger serialises stock mutations per warehouse and refuses
 # negative stock. The movements API calls it through this binding and falls

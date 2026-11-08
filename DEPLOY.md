@@ -28,7 +28,7 @@ with `npx wrangler deploy --dry-run` (`tools/check.sh` stage 5 runs it).
 
 ```bash
 wrangler d1 create fabric-roll-stock
-# paste the returned database_id into wrangler.toml ([[d1_databases]] block)
+# uncomment the [[d1_databases]] block in wrangler.toml, paste the database_id
 wrangler d1 migrations apply fabric-roll-stock --remote
 ```
 
@@ -48,8 +48,14 @@ Cloudflare Dashboard → Workers & Pages → Create → **Workers** → Connect 
 | Deploy command | `npx wrangler deploy` (the default) |
 | Root directory | `/` (repo root) |
 
-The deploy succeeds even with the `PLACEHOLDER` resource IDs still in
-`wrangler.toml`; fill in the real D1/KV/R2 IDs afterwards (§4) and re-deploy.
+The first deploy needs **no pre-created resources**: `wrangler.toml` binds only
+`ASSETS` and the `WarehouseLedger` Durable Object (self-contained). Every
+resource binding ships as a **commented template block** — the Cloudflare API
+rejects placeholder IDs at upload (real-world error: `KV namespace
+'PLACEHOLDER' is not valid [code: 10042]`), so create the resource, paste its
+real ID into the template, uncomment the block, and push. The Worker deploys
+under the name `inventoryazhartexcloudflare` (the CI project name — keep
+`name` in `wrangler.toml` in sync, or the build warns and overrides).
 
 > **Classic Pages project instead?** Create a *Pages* project with **build
 > output directory `app`** from the same repo — Pages auto-mounts
@@ -79,8 +85,8 @@ versioned with the code; the dashboard entries attach the real resource IDs.
 
 | Binding | Type | Configured in | Notes |
 | --- | --- | --- | --- |
-| `DB` | D1 | wrangler.toml + dashboard ID | `fabric-roll-stock` |
-| `CACHE` | KV | wrangler.toml + dashboard ID | rate limits, idempotency, digests |
+| `DB` | D1 | uncomment `[[d1_databases]]` + real ID | `fabric-roll-stock` |
+| `CACHE` | KV | uncomment `[[kv_namespaces]]` + real ID | rate limits, idempotency, digests |
 | `EXPORTS` | R2 | wrangler.toml | backups, CSV/PDF exports |
 | `AUDIT_QUEUE` | Queue producer | wrangler.toml | consumed by the worker's `queue` handler |
 | `ANALYTICS` | Analytics Engine | wrangler.toml | login attempts, stock mutations |
@@ -96,12 +102,14 @@ versioned with the code; the dashboard entries attach the real resource IDs.
 
 ```bash
 wrangler d1 create fabric-roll-stock            # 1. database
+# 2. uncomment [[d1_databases]] in wrangler.toml, paste the database_id
 wrangler d1 migrations apply fabric-roll-stock --remote
-git push origin main                            # 2. the build runs `npx wrangler deploy`
+git push origin main                            # 3. the build runs `npx wrangler deploy`
 ```
 
-Then in the dashboard: paste the real D1/KV/R2 IDs into the bindings and
-re-deploy, enable Turnstile on the login form (the SPA posts `turnstileToken`),
+Then, resource by resource: create it, uncomment its template block with the
+real ID, push (each push redeploys). Enable Turnstile on the login form (the
+SPA posts `turnstileToken`),
 and add an Access application in front of the site if SSO is desired (the
 middleware validates `Cf-Access-Jwt-Assertion` when `ACCESS_CLIENT_SECRET` is
 set).
