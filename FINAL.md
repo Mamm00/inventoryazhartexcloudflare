@@ -146,6 +146,16 @@ ships prebuilts for the node 22 and 24 ABIs and exposes the identical API the
 adapter uses (verified: 57/57 tests green on 12.11.1). The Cloudflare build
 (`npm clean-install`) installs it normally.
 
+Second follow-up (same day, third deploy attempt): with bindings trimmed the
+upload reached the DO migration and the free-plan API rejected `new_classes`
+with `In order to use Durable Objects with a free plan, you must create a
+namespace using a new_sqlite_classes migration [code: 10097]`. Fix: both
+wrangler.toml files now declare `new_sqlite_classes = ["WarehouseLedger"]`
+(the classic storage API the class uses works unchanged on the SQLite
+backend). After this, the same build log shows the deploy proceeding past
+bindings (only `WAREHOUSE_LEDGER` + `ASSETS`) with the name-mismatch warning
+gone.
+
 ## 6. Honesty statement
 
 Server-side RBAC is enforced in every Pages Function and in the Durable Object;

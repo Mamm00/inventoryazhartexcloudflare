@@ -81,9 +81,13 @@ not_found_handling = "404-page"
 # negative stock. The movements API calls it through this binding and falls
 # back to the identical shared implementation (shared/ledger-core.js) when the
 # binding is absent (tests, classic Pages).
+#
+# NOTE: the migration must use new_sqlite_classes — Durable Objects on the
+# free plan reject `new_classes` (API error 10097). The class code is
+# unchanged: the classic storage API works on the SQLite backend.
 [durable_objects]
 bindings = [{ name = "WAREHOUSE_LEDGER", class_name = "WarehouseLedger" }]
 
 [[migrations]]
 tag = "v1"
-new_classes = ["WarehouseLedger"]
+new_sqlite_classes = ["WarehouseLedger"]
