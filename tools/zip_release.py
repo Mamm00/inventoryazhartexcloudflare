@@ -89,10 +89,8 @@ def main():
                     add_path(zf, src, os.path.join('deploy', entry))
                 else:
                     zf.write(src, os.path.join('deploy', entry))
-        for extra in ('FINAL.md', 'DEPLOY.md', 'seed_manifest.json'):
-            p = os.path.join(ROOT, extra)
-            if os.path.exists(p):
-                zf.write(p, extra)
+        # FINAL.md, DEPLOY.md and seed_manifest.json already ride along in
+        # zip_repo() at the archive root — no duplicate entries.
 
     make('fabric-roll-stock-source.zip', source)
     make('fabric-roll-stock-pages.zip', pages)
