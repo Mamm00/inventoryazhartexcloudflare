@@ -138,6 +138,14 @@ binding as a commented template (create → paste real ID → uncomment → push
 CI-faithful check (`git archive` checkout without `node_modules`, bare `npx
 wrangler deploy --dry-run`): 11 assets, 139.22 KiB, only the two bindings.
 
+Test-devDependency note: `better-sqlite3` is pinned to `12.11.1` (tests only —
+`tests/_local-d1.js`). v13.x releases no longer attach prebuilt binaries, and
+this sandbox blocks both `nodejs.org` (node-gyp headers) and the GitHub
+release-asset hosts (`objects/​release-assets.githubusercontent.com`); 12.11.1
+ships prebuilts for the node 22 and 24 ABIs and exposes the identical API the
+adapter uses (verified: 57/57 tests green on 12.11.1). The Cloudflare build
+(`npm clean-install`) installs it normally.
+
 ## 6. Honesty statement
 
 Server-side RBAC is enforced in every Pages Function and in the Durable Object;
