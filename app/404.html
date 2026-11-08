@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>404 — Fabric Roll Stock</title>
+  <script>
+    // 404 bounce: unknown paths land back on a hash route of the SPA.
+    (function () {
+      var hash = window.location.hash || '#/stock';
+      var here = window.location.pathname.replace(/\/404\.html?$/, '/');
+      window.location.replace(here + hash);
+    })();
+  </script>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; margin: 3rem; color: #223; }
+  </style>
+</head>
+<body>
+  <p>Redirecting to the app… <a href="#/stock">Fabric Roll Stock</a></p>
+  <noscript><p>Enable JavaScript, or open <a href="/index.html">the app</a>.</p></noscript>
+</body>
+</html>
