@@ -22,10 +22,12 @@ Generated: 2026-11-08. Branch `arena/90e920ce-inventoryazhartexcloudflare` → P
 | `shared/server/http.js` | 7540 | `58dd09d844d80047…` |
 | `worker/src/ledger-do.js` | 760 | `51fa93a62011de1f…` |
 | `worker/src/index.js` | 1561 | `6e406cbd8c5b8669…` |
+| `worker/src/app.js` | 1822 | `1f4670b1e10a37c6…` |
+| `worker/src/api-router.js` | 5914 | `ffec3d412fb506fd…` |
 | `functions/api/_middleware.js` | 2867 | `18b003e712633add…` |
 | `seed_manifest.json` | 5182 | `074c7b5480d85bc4…` |
 | `tests/logic.test.js` | 15377 | `79a417e4b3ea0963…` |
-| `tests/api.test.js` | 23700 | `6c49a42b081aa1f4…` |
+| `tests/api.test.js` | 24664 | `37f8ed05cb0a5d54…` |
 | `tests/ui.test.js` | 16815 | `2bace6a34373e812…` |
 | `tests/site.test.js` | 6558 | `c93e9913c0216aaa…` |
 | `tests/lint.js` | 4391 | `ae9ddafa3ebf4148…` |
@@ -61,8 +63,9 @@ this file, so its hash cannot be quoted here without circularity).
 | Landing parity, 404 bounce, sign-in table row-for-row | `tests/site.test.js` | EN/AR key sets identical; rows == seeded accounts |
 | Static rules (innerHTML, alert, replaceAll, `<dialog>`, t() keys, CSP) | `node tests/lint.js` | clean (313 i18n keys) |
 | Pages Functions compile | `npx wrangler pages functions build` (inside `tools/check.sh`) | "Compiled Worker successfully" |
-| Full stack live (login → stock → movement → 409 refusals) | `npx wrangler pages dev` smoke via curl | keeper1: 5 sheds = 51,333 rolls; In +2 succeeded (51,335); UNMAPPED 422 and NEGATIVE_STOCK 409 refusals carry named messages |
-| Full pipeline | `bash tools/check.sh` | `CHECK: all green` (56 tests + lint + build) |
+| The CI's deploy command bundles | `npx wrangler deploy --dry-run` (inside `tools/check.sh`) | `Total Upload: 139.22 KiB` — worker + 11 assets + DO + queues + cron in one deploy |
+| Full stack live (login → stock → movement → 409 refusals) | `npx wrangler dev` smoke via curl (the CI's deploy shape) | keeper1: 5 sheds = 51,333 rolls; In +2 succeeded (51,335); UNMAPPED 422 and NEGATIVE_STOCK 409 refusals carry named messages |
+| Full pipeline | `bash tools/check.sh` | `CHECK: all green` (57 tests + lint + build) |
 
 Command that could not run as specified: `tests/api.test.js` was specced against
 `wrangler pages dev` + Miniflare bindings. Miniflare *is* exercised live in the
@@ -100,7 +103,29 @@ plus Workers AI, Vectorize, Images, Browser Rendering, Turnstile site/secret
 `EXPORT_TOKEN`. Companion Worker (`worker/wrangler.toml`) additionally binds the
 queue **consumers** (audit/email/export + dead-letter queues) and cron triggers.
 
-## 5. Honesty statement
+## 5. CI build fix (2026-11-08)
+
+The first push failed in Cloudflare's build (`npx wrangler deploy`, wrangler
+4.x): the config was Pages-shaped (`pages_build_output_dir`), and `wrangler
+deploy` cannot deploy a Pages project ("Could not detect a directory
+containing static files"). Reproduced locally with `wrangler@4.158.0`; fixed
+by making the root `wrangler.toml` a Workers-with-static-assets project:
+
+- `wrangler.toml`: `main = "worker/src/app.js"` + `[assets] directory="./app"`
+  (`run_worker_first = true`, `not_found_handling = "404-page"`) +
+  `[[durable_objects]] WAREHOUSE_LEDGER → WarehouseLedger` + `[[migrations]]`
+  (replacing the Pages-era `[[services]]` placeholder).
+- `worker/src/api-router.js` (new): dispatches `/api/*` to the **exact**
+  `functions/api/**` modules (method + path table, `:id` params, the same
+  `_middleware.js` first) — no copied handler code.
+- `worker/src/app.js` (new): one entry exporting fetch (API + `env.ASSETS`
+  fallback), `queue()` and `scheduled()` and the `WarehouseLedger` class.
+- Verified: `npx wrangler deploy --dry-run` bundles clean (139.22 KiB);
+  live `npx wrangler dev` smoke — health/login/stock/movement through the
+  real Durable Object stub, 403+Blocked audit on cross-keeper write, 404
+  bounce page; `bash tools/check.sh` → `CHECK: all green` (57 + lint).
+
+## 6. Honesty statement
 
 Server-side RBAC is enforced in every Pages Function and in the Durable Object;
 the browser copy of `can()` is affordance only. The writable app requires

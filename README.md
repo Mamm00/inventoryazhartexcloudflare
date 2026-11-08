@@ -1,8 +1,8 @@
 # Fabric Roll Stock — مخزون بكرات القماش
 
 Production-grade fabric-roll stock management for an Egyptian fabric merchant,
-deployed as a **Cloudflare Pages full-stack application** from this GitHub
-repository. Business model:
+deployed as a **Cloudflare full-stack application** (Workers with static
+assets, or classic Pages) from this GitHub repository. Business model:
 
 ```
 Warehouse (مخزن / عرض) → Fabric type (قماش) → Colour (لون) → Roll (بكرة)
@@ -95,9 +95,11 @@ npm run check     # the full pipeline: build, seed → local D1, print numbers, 
 ## Deployment
 
 See [DEPLOY.md](DEPLOY.md). Short version: connect this repo in the Cloudflare
-dashboard (build `npm run build`, output `app/`), create D1 + apply migrations,
-deploy `worker/` first (Durable Objects + queues + cron), then bind
-DB / CACHE / EXPORTS / AUDIT_QUEUE / ANALYTICS / WAREHOUSE_LEDGER.
+dashboard (deploy command `npx wrangler deploy`, wrangler 4.x), create D1 +
+apply migrations, then bind DB / CACHE / EXPORTS / AUDIT_QUEUE / ANALYTICS
+(real resource IDs in place of the placeholders). The root `wrangler.toml`
+serves the SPA, the API, the WarehouseLedger Durable Object, queues and cron
+in one Worker.
 
 ## Tests
 

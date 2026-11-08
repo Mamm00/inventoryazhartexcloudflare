@@ -1,10 +1,22 @@
-# wrangler.toml — Cloudflare Pages project bindings. Git-connected Pages reads
-# this configuration so it is versioned with the code. Placeholders are filled
-# in the dashboard (Settings → Bindings) after the first deploy; see DEPLOY.md.
+# wrangler.toml — the project `npx wrangler deploy` builds (the CI's user
+# deploy command): one Worker serving the static SPA (assets), the /api/*
+# Pages Function modules, the WarehouseLedger Durable Object, queue consumers
+# and cron triggers. A classic Pages project can also be connected instead —
+# see DEPLOY.md. Placeholders are filled in the dashboard after the first
+# deploy (Settings → Bindings / Variables).
 
 name = "fabric-roll-stock"
-pages_build_output_dir = "app"
+main = "worker/src/app.js"
 compatibility_date = "2026-11-01"
+
+# Static SPA. Every request runs the worker first (schema-stable across
+# wrangler versions); the entry serves /api/* and hands everything else to
+# env.ASSETS (404.html bounce page for unknown paths).
+[assets]
+directory = "./app"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "404-page"
 
 [[d1_databases]]
 binding = "DB"
@@ -28,6 +40,13 @@ queue = "audit-queue"
 binding = "ANALYTICS"
 dataset = "fabric_roll_events"
 
-[[services]]
-binding = "WAREHOUSE_LEDGER"
-service = "fabric-roll-ledger-worker"
+# WarehouseLedger serialises stock mutations per warehouse and refuses
+# negative stock. The movements API calls it through this binding and falls
+# back to the identical shared implementation (shared/ledger-core.js) when the
+# binding is absent (tests, classic Pages).
+[durable_objects]
+bindings = [{ name = "WAREHOUSE_LEDGER", class_name = "WarehouseLedger" }]
+
+[[migrations]]
+tag = "v1"
+new_classes = ["WarehouseLedger"]

@@ -475,3 +475,23 @@ test('health endpoint returns 200', async () => {
   assert.equal(res.status, 200);
   assert.equal((await res.json()).ok, true);
 });
+
+test('worker entry (worker/src/app.js router) dispatches /api/* through the shared handlers', async () => {
+  const { handleApi } = await import('../worker/src/api-router.js');
+  const { env } = freshDb();
+  const unauth = await handleApi(req('/api/stock'), env);
+  assert.equal(unauth.status, 403);
+  assert.equal((await unauth.json()).error, 'UNAUTHORIZED');
+  const login = await handleApi(req('/api/auth/login', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: { username: 'admin', password: 'admin123' },
+  }), env);
+  assert.equal(login.status, 200);
+  const cookie = (login.headers.get('set-cookie') || '').split(';')[0];
+  const stock = await handleApi(req('/api/stock', { headers: { cookie } }), env);
+  assert.equal(stock.status, 200);
+  assert.equal((await stock.json()).sheds.length, 10);
+  const notFound = await handleApi(req('/api/nope', { headers: { cookie } }), env);
+  assert.equal(notFound.status, 404);
+});

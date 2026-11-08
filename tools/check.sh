@@ -45,6 +45,8 @@ node tests/lint.js
 echo "== 5/5 functions build check =="
 if npx --no-install wrangler --version >/dev/null 2>&1; then
   npx wrangler pages functions build --outdir /tmp/pages-functions-build 2>&1 | tail -3
+  # The CI's user deploy command must also bundle cleanly (no upload).
+  npx wrangler deploy --dry-run --outdir /tmp/worker-build 2>&1 | tail -3
 else
   echo "wrangler not installed — falling back to node --check per function file"
   find functions -name '*.js' -print0 | while IFS= read -r -d '' f; do node --check "$f"; done
