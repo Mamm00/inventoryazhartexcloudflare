@@ -125,6 +125,19 @@ by making the root `wrangler.toml` a Workers-with-static-assets project:
   real Durable Object stub, 403+Blocked audit on cross-keeper write, 404
   bounce page; `bash tools/check.sh` → `CHECK: all green` (57 + lint).
 
+Follow-up after the first real CI deploy (same day): the build reached the
+Cloudflare API and was rejected with `KV namespace 'PLACEHOLDER' is not valid
+[code: 10042]` — **the API validates binding IDs at upload**, so placeholder
+IDs can never ship (a `--dry-run` cannot catch this; it never reaches the
+API). Also warned: Worker name mismatch (config `fabric-roll-stock` vs CI
+project `inventoryazhartexcloudflare`; the CI overrides and offers to open a
+PR). Fix: `wrangler.toml` now deploys with only self-contained bindings
+(`ASSETS` + `WarehouseLedger` + migrations) and carries every resource
+binding as a commented template (create → paste real ID → uncomment → push);
+`name = "inventoryazhartexcloudflare"` matches the CI. Verified by the
+CI-faithful check (`git archive` checkout without `node_modules`, bare `npx
+wrangler deploy --dry-run`): 11 assets, 139.22 KiB, only the two bindings.
+
 ## 6. Honesty statement
 
 Server-side RBAC is enforced in every Pages Function and in the Durable Object;

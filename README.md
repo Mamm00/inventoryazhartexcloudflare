@@ -95,11 +95,11 @@ npm run check     # the full pipeline: build, seed → local D1, print numbers, 
 ## Deployment
 
 See [DEPLOY.md](DEPLOY.md). Short version: connect this repo in the Cloudflare
-dashboard (deploy command `npx wrangler deploy`, wrangler 4.x), create D1 +
-apply migrations, then bind DB / CACHE / EXPORTS / AUDIT_QUEUE / ANALYTICS
-(real resource IDs in place of the placeholders). The root `wrangler.toml`
-serves the SPA, the API, the WarehouseLedger Durable Object, queues and cron
-in one Worker.
+dashboard (deploy command `npx wrangler deploy`, wrangler 4.x) — the first
+deploy needs no pre-created resources. Then create D1 + apply migrations and
+enable each binding by uncommenting its template block in `wrangler.toml`
+with the real resource ID. The root `wrangler.toml` serves the SPA, the API,
+the WarehouseLedger Durable Object, queues and cron in one Worker.
 
 ## Tests
 
