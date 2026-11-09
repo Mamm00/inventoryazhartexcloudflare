@@ -24,7 +24,7 @@ body {
 
 #splash { padding: 3rem; text-align: center; color: var(--muted); }
 
-#shell { display: flex; min-height: 100vh; }
+#shell { display: flex; min-height: 100vh; min-height: 100dvh; }
 #sidebar {
   width: 232px; flex: 0 0 232px; background: var(--blue-dark); color: #eef2fa;
   display: flex; flex-direction: column; padding: 1rem .75rem; gap: .75rem;
@@ -129,7 +129,8 @@ label.field input, label.field select, label.field textarea {
 .toast.error { background: var(--red); }
 .toast.ok { background: var(--green); }
 
-.login-wrap { max-width: 430px; margin: 7vh auto; }
+.login-wrap { max-width: 430px; margin: 1.25rem auto 4rem; }
+.login-demo { max-width: 100%; overflow-x: auto; }
 .login-demo { font-size: .82rem; color: var(--muted); }
 .login-demo table { margin-top: .4rem; }
 

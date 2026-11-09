@@ -74,11 +74,14 @@ async function runStrictChunked(db, text) {
 
 const results = (r) => (Array.isArray(r) ? r : (r && r.results) || []);
 
-// GET probe — lets the login screen offer the setup button before any
+// GET probe — lets the login screen offer/auto-run setup before any
 // credentials are typed. Reports only whether zero accounts exist (the same
-// fact a failed login already reveals via NO_ACCOUNTS).
+// fact a failed login already reveals via NO_ACCOUNTS). Append ?go=1 to turn
+// the same URL into a one-tap bootstrap link (tappable from any browser):
+// it performs the first-run setup under exactly the same guards as POST.
 export async function onRequestGet(context) {
-  const { env } = context;
+  const { env, request } = context;
+  if (new URL(request.url).searchParams.get('go') === '1') return onRequestPost(context);
   if (!env.DB || typeof env.DB.prepare !== 'function') {
     return json({ error: 'CONFIG', needed: false }, 503);
   }

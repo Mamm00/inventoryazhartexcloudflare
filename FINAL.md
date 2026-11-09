@@ -206,6 +206,22 @@ immediately — no failed login needed first; (5) `offerSetup` scrolls the
 button into view. `GET /api/auth/setup` doubles as the one-URL
 "is the new build live?" check. Tests: 60 green.
 
+Seventh follow-up (2026-11-09, "add users and fix, don't stop"): the blank
+phone screenshots were not a missing button — the page itself is panned/shifted
+away from the login card after the Android virtual keyboard closes, a
+Chrome/WebView 76+ viewport bug hitting `100vh` + `vh`-based margins (research:
+enzoblain/Palabre#67 is the identical bug with the identical fix recipe;
+ionic-framework#19065 documents the keyboard-resize break). Fixes:
+`min-height: 100dvh` (vh fallback kept) on `#shell`; `.login-wrap` margins
+switched from `7vh` to rem; `.login-demo` tables get `overflow-x: auto`
+(the horizontal scrollbar in the screenshots); `safeTop()` scroll reset on
+`pageshow` / `visibilitychange` / `visualViewport resize` / `focusout`
+(login screen only). "Add users" honoured literally: the login screen now
+**auto-runs the first-run setup** when the probe reports zero accounts
+(button kept as fallback), and `GET /api/auth/setup?go=1` is a one-tap
+bootstrap link that works from any browser regardless of any cached SPA.
+Tests: 62 green (new: api bootstrap-link test, ui auto-seed test).
+
 Sandbox note for future test runs: this sandbox wipes `node_modules` between
 sessions and blocks both `nodejs.org` (node-gyp headers) and the GitHub
 release-asset hosts, so restore with:

@@ -94,6 +94,7 @@ export const I18N_RAW = {
   'login.setupBtn': ['Initialize database & load demo data', 'تهيئة قاعدة البيانات وتحميل البيانات التجريبية'],
   'login.setupBusy': ['Setting up… this can take half a minute', 'جارٍ التهيئة… قد يستغرق نصف دقيقة'],
   'login.setupDone': ['Database ready — signing you in', 'قاعدة البيانات جاهزة — جارٍ تسجيل الدخول'],
+  'login.setupAutoDone': ['Database ready — the demo accounts are loaded, sign in below', 'قاعدة البيانات جاهزة — تم تحميل حسابات التجربة، سجّل الدخول بالأسفل'],
   'login.setupFailed': ['Setup failed — check the D1 binding and try again', 'فشلت التهيئة — تحقق من ربط D1 وحاول مجددًا'],
   'login.demo': ['Demo accounts', 'حسابات تجريبية'],
   'login.checking': ['Checking session…', 'جارٍ التحقق من الجلسة…'],

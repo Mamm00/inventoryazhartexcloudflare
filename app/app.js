@@ -217,7 +217,8 @@ function renderLogin() {
   card.appendChild(demo);
   wrap.appendChild(card);
   main.appendChild(wrap);
-  probeSetup(form); // show the one-tap setup button immediately when the DB has no accounts
+  safeTop(); // mobile keyboard/viewport bugs leave the page panned away from the card
+  probeSetup(form); // auto-seed a database with zero accounts, then leave the form ready
 }
 
 const DEMO_SIGN_INS = [
@@ -253,31 +254,58 @@ function offerSetup(form) {
     btn = mk('button', { class: 'btn', type: 'button', text: tr('login.setupBtn') });
     btn.setAttribute('data-setup-btn', '1');
     form.appendChild(btn);
-    btn.addEventListener('click', async () => {
-      btn.disabled = true;
-      btn.textContent = tr('login.setupBusy');
-      const res = await api.mutate('/api/auth/setup', {});
-      if (!res.ok) {
-        btn.disabled = false;
-        btn.textContent = tr('login.setupBtn');
-        toast(tr('login.setupFailed'), 'error');
-        return;
-      }
-      toast(tr('login.setupDone'), 'success');
-      btn.remove();
-      await submitLogin(form); // retry with the credentials already typed
-    });
+    btn.addEventListener('click', () => runSetup(form, true));
   }
   btn.hidden = false;
   if (btn.scrollIntoView) btn.scrollIntoView({ block: 'center' });
 }
 
+async function runSetup(form, loginAfter) {
+  const btn = form.querySelector('[data-setup-btn]');
+  if (btn) { btn.disabled = true; btn.textContent = tr('login.setupBusy'); }
+  const res = await api.mutate('/api/auth/setup', {});
+  if (!res.ok) {
+    if (btn) { btn.disabled = false; btn.textContent = tr('login.setupBtn'); }
+    toast(tr('login.setupFailed'), 'error');
+    return false;
+  }
+  if (btn) btn.remove();
+  toast(tr(loginAfter ? 'login.setupDone' : 'login.setupAutoDone'), 'success');
+  if (loginAfter) await submitLogin(form); // retry with the credentials already typed
+  return true;
+}
+
 function probeSetup(form) {
-  if (window.__TEST__) return;
-  fetch('/api/auth/setup', { method: 'GET' })
-    .then((r) => (r.ok ? r.json() : null))
-    .then((d) => { if (d && d.needed) offerSetup(form); })
-    .catch(() => { /* setup probe is best-effort */ });
+  // Auto-bootstrap: when the database has zero accounts, seed it right now —
+  // the button stays as the manual fallback if this fails (e.g. rate limit).
+  try {
+    fetch('/api/auth/setup', { method: 'GET' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d || !d.needed) return null;
+        offerSetup(form);
+        return runSetup(form, false);
+      })
+      .catch(() => { /* setup probe is best-effort */ });
+  } catch { /* fetch unavailable */ }
+}
+
+// Mobile keyboard/viewport trap (Chrome/WebView 76+): the page stays panned
+// or shifted after the virtual keyboard closes and the login card is left
+// off-screen. Reset scroll whenever we are on the login screen — the same
+// fix as enzoblain/Palabre#67 (100dvh + scrollTo on pageshow,
+// visibilitychange, visualViewport resize and focusout).
+function safeTop() { try { window.scrollTo(0, 0); } catch { /* jsdom */ } }
+
+if (typeof document !== 'undefined' && !window.__TEST__) {
+  const resetIfLogin = () => { if (!UI.user) safeTop(); };
+  window.addEventListener('pageshow', resetIfLogin);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) resetIfLogin(); });
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resetIfLogin);
+  document.addEventListener('focusout', () => setTimeout(() => {
+    const el = document.activeElement;
+    if (!UI.user && !(el && el.matches && el.matches('input, textarea, select, [contenteditable="true"]'))) safeTop();
+  }, 250));
 }
 
 // ---- router --------------------------------------------------------------

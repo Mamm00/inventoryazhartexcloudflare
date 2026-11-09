@@ -561,3 +561,18 @@ test('setup probe: GET reports needed before setup and not after', async () => {
   assert.equal(unbound.status, 503);
   assert.equal((await unbound.json()).needed, false);
 });
+
+test('setup bootstrap link: GET ?go=1 seeds once, then refuses forever', async () => {
+  const { onRequestGet: probe } = await import('../functions/api/auth/setup.js');
+  const { env, db } = freshDb();
+  db.prepare('DELETE FROM users').run();
+  db.prepare('DELETE FROM stock_events').run();
+  const res = await probe({ env, request: req('/api/auth/setup?go=1') });
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).records, 3005);
+  assert.equal((await login(env, 'admin', 'admin123')).status, 200);
+  const again = await probe({ env, request: req('/api/auth/setup?go=1') });
+  assert.equal(again.status, 409);
+  const plain = await probe({ env, request: req('/api/auth/setup') });
+  assert.equal((await plain.json()).needed, false);
+});
