@@ -193,6 +193,19 @@ automatically. Bundle cost: +540 KB raw / +39 KB gzip (Total Upload 679.58
 KiB / gzip 70.82 KiB). Covered by `tests/api.test.js` ("first-run setup",
 partial-state + schema-missing scenarios): 59 tests green.
 
+Sixth follow-up (2026-11-09, "still same error"): PR #6 was merged but the
+live app kept the old behaviour, so the deploy pipeline itself became the
+suspect. Five failure modes hardened in one sweep: (1) `tools/provision.mjs`
+can no longer fail a build — its entry is wrapped and exits 0 in every case
+except `--self-test`; (2) `better-sqlite3` moved to `optionalDependencies`
+so a native-build failure in the build image can never kill `npm ci`;
+(3) `app/_headers` now sends `Cache-Control: no-cache` for all assets (the
+`app.js` reference had no cache-busting); (4) the login screen probes
+`GET /api/auth/setup` on render and shows the one-tap Initialize button
+immediately — no failed login needed first; (5) `offerSetup` scrolls the
+button into view. `GET /api/auth/setup` doubles as the one-URL
+"is the new build live?" check. Tests: 60 green.
+
 Sandbox note for future test runs: this sandbox wipes `node_modules` between
 sessions and blocks both `nodejs.org` (node-gyp headers) and the GitHub
 release-asset hosts, so restore with:

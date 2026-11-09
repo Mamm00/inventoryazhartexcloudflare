@@ -74,6 +74,22 @@ async function runStrictChunked(db, text) {
 
 const results = (r) => (Array.isArray(r) ? r : (r && r.results) || []);
 
+// GET probe — lets the login screen offer the setup button before any
+// credentials are typed. Reports only whether zero accounts exist (the same
+// fact a failed login already reveals via NO_ACCOUNTS).
+export async function onRequestGet(context) {
+  const { env } = context;
+  if (!env.DB || typeof env.DB.prepare !== 'function') {
+    return json({ error: 'CONFIG', needed: false }, 503);
+  }
+  let users = 0;
+  try {
+    const r = await env.DB.prepare('SELECT COUNT(*) AS n FROM users').first();
+    users = (r && r.n) || 0;
+  } catch { users = 0; }
+  return json({ ok: true, needed: users === 0 });
+}
+
 export async function onRequestPost(context) {
   const { env, request } = context;
   const ip = clientIp(request);

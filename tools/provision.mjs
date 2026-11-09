@@ -187,4 +187,14 @@ function main() {
   log('done — the following `wrangler deploy` uses these bindings');
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();
+// The build runs this script — it must NEVER fail the build. Provisioning is
+// best-effort: whatever cannot be created is logged and left for the manual
+// path (DEPLOY.md §5), and `wrangler deploy` runs regardless.
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  try {
+    main();
+  } catch (e) {
+    log(`unexpected error — continuing anyway (deploy will proceed): ${String((e && e.message) || e)}`);
+    process.exitCode = 0;
+  }
+}

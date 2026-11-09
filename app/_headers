@@ -1,6 +1,7 @@
 # Security headers for the SPA shell. CSP blocks external origins — every
 # network call stays on /api/* (enforced again by tests/lint.js).
 /*
+  Cache-Control: no-cache
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin

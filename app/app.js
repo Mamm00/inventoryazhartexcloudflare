@@ -217,6 +217,7 @@ function renderLogin() {
   card.appendChild(demo);
   wrap.appendChild(card);
   main.appendChild(wrap);
+  probeSetup(form); // show the one-tap setup button immediately when the DB has no accounts
 }
 
 const DEMO_SIGN_INS = [
@@ -268,6 +269,15 @@ function offerSetup(form) {
     });
   }
   btn.hidden = false;
+  if (btn.scrollIntoView) btn.scrollIntoView({ block: 'center' });
+}
+
+function probeSetup(form) {
+  if (window.__TEST__) return;
+  fetch('/api/auth/setup', { method: 'GET' })
+    .then((r) => (r.ok ? r.json() : null))
+    .then((d) => { if (d && d.needed) offerSetup(form); })
+    .catch(() => { /* setup probe is best-effort */ });
 }
 
 // ---- router --------------------------------------------------------------
