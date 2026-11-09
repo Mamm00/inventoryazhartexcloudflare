@@ -545,3 +545,19 @@ test('first-run setup: seeds an empty/partial database, then refuses forever', a
   assert.equal((await res2.json()).records, 3005);
   assert.equal((await login(bare.env, 'keeper2', 'keeper2123')).status, 200);
 });
+
+test('setup probe: GET reports needed before setup and not after', async () => {
+  const { onRequestGet: probe } = await import('../functions/api/auth/setup.js');
+  const seeded = freshDb();
+  let res = await probe({ env: seeded.env, request: req('/api/auth/setup') });
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).needed, false);
+  const empty = freshDb();
+  empty.db.prepare('DELETE FROM users').run();
+  res = await probe({ env: empty.env, request: req('/api/auth/setup') });
+  assert.equal(res.status, 200);
+  assert.equal((await res.json()).needed, true);
+  const unbound = await probe({ env: {}, request: req('/api/auth/setup') });
+  assert.equal(unbound.status, 503);
+  assert.equal((await unbound.json()).needed, false);
+});

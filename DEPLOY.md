@@ -134,7 +134,9 @@ SPA posts `turnstileToken`),
 > data"** (Arabic: تهيئة قاعدة البيانات) whenever the database has zero
 > accounts. One tap wipes any partial data and applies `migrations/0001–0003`
 > (the same SQL, embedded in the worker) — and the endpoint refuses to ever
-> run again once an account exists.
+> run again once an account exists. To confirm the new build is serving:
+> open `/api/auth/setup` in the browser — JSON `{"needed":true}` means it is
+> live (a 404 means an older build is still deployed).
 and add an Access application in front of the site if SSO is desired (the
 middleware validates `Cf-Access-Jwt-Assertion` when `ACCESS_CLIENT_SECRET` is
 set).
