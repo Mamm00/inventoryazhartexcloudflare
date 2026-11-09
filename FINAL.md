@@ -230,6 +230,20 @@ release-asset hosts, so restore with:
 `python3 configure.py` inside it → `npm_config_nodedir=<that dir> npm rebuild
 better-sqlite3` (run from the repo root).
 
+## 5a. Eighth follow-up — default-admin sign-in (2026-11-09)
+
+"Remove login functionality": the app now runs as the **default admin only** —
+no login screen. `boot()` signs in automatically (`ensureAdmin()`: session →
+first-run setup if the database is empty → login admin/admin123), the keeper
+demo table and logout button are removed from the UI, and a minimal error
+panel with a Retry button replaces the old login form if sign-in ever fails.
+The auth API and RBAC stay intact (the server still validates every
+credential and guards every mutation — covered by the api suite). New
+`tools/preview.mjs`: a full-fidelity local preview (the real API handlers
+over a seeded local SQLite) — validated live: login 200, bad password 401,
+setup re-run 409, seeded stock served. Tests: 62 green (boot auto-sign-in
+covered by the ui suite).
+
 ## 6. Honesty statement
 
 Server-side RBAC is enforced in every Pages Function and in the Durable Object;
