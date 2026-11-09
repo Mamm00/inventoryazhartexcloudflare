@@ -365,13 +365,21 @@ test('movement form refuses optimistic updates on 409 and shows the server messa
   assert.ok(toastEl.textContent.includes('3') || toastEl.textContent.includes('٣'), 'the shortfall is shown');
 });
 
-test('login screen auto-seeds a database with zero accounts', async () => {
-  globalThis.__setRoutes({ '/api/auth/setup': { ok: true, needed: true } });
-  App.setUser(null);
-  await App.render();
-  await new Promise((r) => setTimeout(r, 25));
-  await new Promise((r) => setTimeout(r, 25));
-  assert.equal(globalThis.document.querySelector('[data-setup-btn]'), null,
-    'auto-seed should create the setup button, run, and remove it on success');
-  globalThis.__setRoutes(mockRoutes(ACCOUNTS.admin.warehouseIds.concat(['wh-625', 'wh-magdy', 'wh-wahman', 'wh-lycra', 'wh-kashry'])));
+test('boot signs in as the default admin without a login screen', async () => {
+  const full = mockRoutes(ACCOUNTS.admin.warehouseIds.concat(['wh-625', 'wh-magdy', 'wh-wahman', 'wh-lycra', 'wh-kashry']));
+  const map = Object.assign({}, full, {
+    '/api/auth/me': { error: 'UNAUTHORIZED' },
+    '/api/auth/setup': { ok: true, needed: true },
+    '/api/auth/login': { user: ACCOUNTS.admin },
+  });
+  globalThis.fetch = async (url) => {
+    const pathname = String(url).split('?')[0];
+    const hit = map[pathname];
+    if (hit === undefined) return new Response(JSON.stringify({ error: 'NO_MOCK', pathname }), { status: 404 });
+    return new Response(JSON.stringify(hit), { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  await App.boot();
+  assert.equal(App.UI.user && App.UI.user.username, 'admin');
+  assert.equal(globalThis.document.querySelector('input[name="password"]'), null,
+    'no login form is shown');
 });

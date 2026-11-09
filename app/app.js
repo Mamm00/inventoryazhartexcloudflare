@@ -149,7 +149,6 @@ function renderShell() {
   langRow.appendChild(mk('button', { onclick: () => setLang('ar'), text: 'العربية' }));
   langRow.appendChild(mk('button', { onclick: () => setLang('en'), text: 'English' }));
   box.appendChild(langRow);
-  box.appendChild(mk('button', { onclick: doLogout, text: tr('app.logout') }));
 }
 
 export function setLang(lang) {
@@ -160,15 +159,9 @@ export function setLang(lang) {
   return render();
 }
 
-async function doLogout() {
-  await fetch('/api/auth/logout', { method: 'POST' });
-  UI.user = null;
-  renderLogin();
-}
+// ---- sign-in (automatic; the app runs as the default admin) --------------
 
-// ---- login ---------------------------------------------------------------
-
-function renderLogin() {
+function renderAuthError() {
   $('#splash').hidden = true;
   $('#shell').hidden = false;
   const main = $('#main');
@@ -177,124 +170,22 @@ function renderLogin() {
   const box = $('#user-box');
   box.textContent = '';
   const langRow = mk('div', { class: 'lang-row' });
-  langRow.appendChild(mk('button', { onclick: () => setLang('ar'), text: 'العربية' }));
+  langRow.appendChild(mk('button', { onclick: () => setLang('ar'), text: '\u0627\u0644\u0639\u0631\u0628\u064a\u0629' }));
   langRow.appendChild(mk('button', { onclick: () => setLang('en'), text: 'English' }));
   box.appendChild(langRow);
-
   const wrap = mk('div', { class: 'login-wrap' });
   wrap.appendChild(mk('h1', { text: tr('login.title') }));
   const card = mk('div', { class: 'card' });
-  const form = mk('form', {
-    class: 'grid',
-    onsubmit: (ev) => {
-      ev.preventDefault();
-      submitLogin(form);
-    },
-  });
-  const userField = mk('label', { class: 'field' }, tr('login.username'),
-    mk('input', { name: 'username', autocomplete: 'username', required: true }));
-  const passField = mk('label', { class: 'field' }, tr('login.password'),
-    mk('input', { name: 'password', type: 'password', autocomplete: 'current-password', required: true }));
-  form.appendChild(userField);
-  form.appendChild(passField);
-  form.appendChild(mk('div', {}, mk('button', { class: 'btn', type: 'submit', text: tr('login.submit') })));
-  card.appendChild(form);
-  const demo = mk('div', { class: 'login-demo' });
-  demo.appendChild(mk('div', { text: tr('login.demo') }));
-  const tbl = mk('table', { class: 'data' });
-  tbl.appendChild(mk('thead', {}, mk('tr', {},
-    mk('th', { text: tr('login.username') }), mk('th', { text: tr('login.password') }),
-    mk('th', { text: tr('app.role') }), mk('th', { text: tr('prof.scope') }))));
-  const tb = mk('tbody');
-  for (const row of DEMO_SIGN_INS) {
-    tb.appendChild(mk('tr', {},
-      mk('td', { dir: 'ltr', text: row.username }), mk('td', { dir: 'ltr', text: row.password }),
-      mk('td', { text: L() === 'ar' ? row.who_ar : row.who_en }),
-      mk('td', { text: L() === 'ar' ? row.scope_ar : row.scope_en })));
-  }
-  tbl.appendChild(tb);
-  demo.appendChild(tbl);
-  card.appendChild(demo);
+  card.appendChild(mk('p', { text: tr('login.autoFailed') }));
+  card.appendChild(mk('button', { class: 'btn', type: 'button', text: tr('app.retry'), onclick: () => boot() }));
   wrap.appendChild(card);
   main.appendChild(wrap);
-  safeTop(); // mobile keyboard/viewport bugs leave the page panned away from the card
-  probeSetup(form); // auto-seed a database with zero accounts, then leave the form ready
-}
-
-const DEMO_SIGN_INS = [
-  { username: 'admin', password: 'admin123', who_en: 'Admin', who_ar: 'مسؤول', scope_en: 'All ten sheds', scope_ar: 'كل المخازن العشرة' },
-  { username: 'keeper1', password: 'mostafa123', who_en: 'Mostafa · Warehouse Keeper', who_ar: 'مصطفى · أمين مخزن', scope_en: 'His five sheds', scope_ar: 'مخازنه الخمسة' },
-  { username: 'keeper2', password: 'keeper2123', who_en: 'Second keeper · Warehouse Keeper', who_ar: 'الأمين الثاني · أمين مخزن', scope_en: 'The other five sheds', scope_ar: 'المخازن الخمسة الأخرى' },
-];
-
-async function submitLogin(form) {
-  const fd = new FormData(form);
-  const res = await api.mutate('/api/auth/login', {
-    username: fd.get('username'), password: fd.get('password'),
-    turnstileToken: (typeof window !== 'undefined' && window.turnstileToken) || 'demo-token',
-  });
-  if (!res.ok) {
-    const err = (res.data && res.data.error) || '';
-    const key = res.status === 429 ? 'login.locked'
-      : err === 'TURNSTILE' ? 'login.turnstile'
-      : err === 'CONFIG' ? 'login.config'
-      : (err === 'NO_ACCOUNTS' || err === 'NO_SCHEMA') ? 'login.noAccounts'
-      : 'login.failed';
-    toast(tr(key), 'error');
-    if (err === 'NO_ACCOUNTS' || err === 'NO_SCHEMA') offerSetup(form);
-    return;
-  }
-  UI.user = res.data.user;
-  await route();
-}
-
-function offerSetup(form) {
-  let btn = form.querySelector('[data-setup-btn]');
-  if (!btn) {
-    btn = mk('button', { class: 'btn', type: 'button', text: tr('login.setupBtn') });
-    btn.setAttribute('data-setup-btn', '1');
-    form.appendChild(btn);
-    btn.addEventListener('click', () => runSetup(form, true));
-  }
-  btn.hidden = false;
-  if (btn.scrollIntoView) btn.scrollIntoView({ block: 'center' });
-}
-
-async function runSetup(form, loginAfter) {
-  const btn = form.querySelector('[data-setup-btn]');
-  if (btn) { btn.disabled = true; btn.textContent = tr('login.setupBusy'); }
-  const res = await api.mutate('/api/auth/setup', {});
-  if (!res.ok) {
-    if (btn) { btn.disabled = false; btn.textContent = tr('login.setupBtn'); }
-    toast(tr('login.setupFailed'), 'error');
-    return false;
-  }
-  if (btn) btn.remove();
-  toast(tr(loginAfter ? 'login.setupDone' : 'login.setupAutoDone'), 'success');
-  if (loginAfter) await submitLogin(form); // retry with the credentials already typed
-  return true;
-}
-
-function probeSetup(form) {
-  // Auto-bootstrap: when the database has zero accounts, seed it right now —
-  // the button stays as the manual fallback if this fails (e.g. rate limit).
-  try {
-    fetch('/api/auth/setup', { method: 'GET' })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (!d || !d.needed) return null;
-        offerSetup(form);
-        return runSetup(form, false);
-      })
-      .catch(() => { /* setup probe is best-effort */ });
-  } catch { /* fetch unavailable */ }
+  safeTop();
 }
 
 // Mobile keyboard/viewport trap (Chrome/WebView 76+): the page stays panned
-// or shifted after the virtual keyboard closes and the login card is left
-// off-screen. Reset scroll whenever we are on the login screen — the same
-// fix as enzoblain/Palabre#67 (100dvh + scrollTo on pageshow,
-// visibilitychange, visualViewport resize and focusout).
+// or shifted after the virtual keyboard closes. Reset scroll whenever no
+// user is signed in (the error panel) — same recipe as enzoblain/Palabre#67.
 function safeTop() { try { window.scrollTo(0, 0); } catch { /* jsdom */ } }
 
 if (typeof document !== 'undefined' && !window.__TEST__) {
@@ -333,7 +224,7 @@ export async function render() {
   const main = $('#main');
   if (!main) return;
   main.textContent = '';
-  if (!UI.user) { renderLogin(); return; }
+  if (!UI.user) { renderAuthError(); return; }
   renderShell();
   let view = UI.view;
   // A keeper never sees Settings; #/settings lands them on read-only My Profile.
@@ -1574,13 +1465,27 @@ export async function boot() {
   document.documentElement.lang = UI.lang;
   document.documentElement.dir = UI.lang === 'ar' ? 'rtl' : 'ltr';
 
+  UI.user = await ensureAdmin();
+  await route();
+}
+
+// The app runs as the default admin only — no login screen. Sign in
+// automatically (seeding the database first on a brand-new deployment).
+async function ensureAdmin() {
   try {
     const me = await api.get('/api/auth/me');
-    UI.user = me.user;
-    await route();
-  } catch {
-    renderLogin();
-  }
+    if (me && me.user) return me.user;
+  } catch { /* no session yet */ }
+  try {
+    const probe = await fetch('/api/auth/setup', { method: 'GET' }).then((r) => (r.ok ? r.json() : null));
+    if (probe && probe.needed) await api.mutate('/api/auth/setup', {});
+  } catch { /* setup probe is best-effort */ }
+  const res = await api.mutate('/api/auth/login', {
+    username: 'admin', password: 'admin123',
+    turnstileToken: (typeof window !== 'undefined' && window.turnstileToken) || 'demo-token',
+  });
+  if (res.ok && res.data && res.data.user) return res.data.user;
+  return null;
 }
 
 export function setUser(user) {
